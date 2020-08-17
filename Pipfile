@@ -9,6 +9,8 @@ verify_ssl = true
 requests = "*"
 pandas = "*"
 tqdm = "*"
+jupyter = "*"
+seaborn = "*"
 
 [requires]
 python_version = "3.8"
