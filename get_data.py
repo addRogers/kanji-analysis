@@ -73,7 +73,7 @@ if __name__ == "__main__":
     args = parse_args()
     wk_token = args.token
     wk_prefix = "https://api.wanikani.com/v2/"
-    suffixes = ['review_statistics', 'assignments', 'level_progressions', 'resets', 'reviews', 'subjects']
+    suffixes = ['review_statistics', 'assignments', 'level_progressions', 'reviews', 'subjects']
     sess = requests.session()
 
     for i in tqdm.tqdm(suffixes):
