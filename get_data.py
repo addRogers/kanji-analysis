@@ -17,7 +17,7 @@ class BearerAuth(requests.auth.AuthBase):
 def pull_data(session: requests.sessions, token: str, url: str):
     """
     Pulls data using the WaniKani RESTful API for an associated user and the collection/resource specified by the url.
-    :param session: Requests session object, potential shared by different resources (see process_ functions).
+    :param session: Requests session object shared by different resources (see process_collections).
     :param token: Authentication token associated with the user.
     :param url: URL suffix associated with the desired collection or resource (e.g. reviews table, kanji info, etc.)
     :return: Yields dictionary objects (parsed json) containing collection/resource data.
@@ -36,14 +36,13 @@ def pull_data(session: requests.sessions, token: str, url: str):
         time.sleep(1)
 
 
-# TODO: fix for subject
 def process_collection(session: requests.sessions, token: str, url: str) -> pd.DataFrame:
     """
     Processes collection
-    :param session:
-    :param token:
-    :param url:
-    :return:
+    :param session: Requests session object shared by different resources (see process_collections).
+    :param token: Authentication token associated with the user.
+    :param url: URL suffix associated with the desired collection or resource (e.g. reviews table, kanji info, etc.)
+    :return: Pandas dataframe for associated collection item.
     """
     temp = []
     for page in pull_data(session, token=token, url=url):
@@ -85,8 +84,7 @@ if __name__ == "__main__":
     args = parse_args()
     wk_token = args.token
     wk_prefix = "https://api.wanikani.com/v2/"
-    # suffixes = ['review_statistics', 'assignments', 'level_progressions', 'reviews', 'subjects']
-    suffixes = ['subjects']
+    suffixes = ['review_statistics', 'assignments', 'level_progressions', 'reviews', 'subjects']
     sess = requests.session()
 
     for i in tqdm.tqdm(suffixes):
