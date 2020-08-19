@@ -52,12 +52,24 @@ def process_collection(session: requests.sessions, token: str, url: str) -> pd.D
                 data = item['data']
                 data['data_updated_at'] = item['data_updated_at']
                 temp.append(data)
-            # else:
-            #     if item['data']['object'] == 'radical':
-            #         asi = item['data']['data']['amalgamation_subject_ids']
-            #         aux = item['data']['data']['auxiliary_meanings']
-            #     meanings = item['data']['data']['meanings']
-            #     readings = item['data']['data']['readings']
+            else:
+                data = {'id': item['id'], 'subject_type': item['object'], 'data_updated_at': item['data_updated_at'],
+                        'level': item['data']['level'], 'characters': item['data']['characters'],
+                        'slug': item['data']['slug'], 'meaning': None, 'number_similar': None,
+                        'component_subject_ids': None}
+
+                if data['subject_type'] != 'radical':
+                    data['component_subject_ids'] = item['data']['component_subject_ids']
+                    if data['subject_type'] == 'kanji':
+                        data['number_similar'] = len(item['data']['visually_similar_subject_ids'])
+                    if data['subject_type'] == 'vocabulary':
+                        data['parts_of_speech'] = item['data']['parts_of_speech']
+
+                for entry in item['data']['meanings']:
+                    if entry['primary'] and entry['accepted_answer']:
+                        data['meaning'] = entry['meaning']
+
+                temp.append(data)
 
     df = pd.DataFrame(temp)
     return df
@@ -73,7 +85,8 @@ if __name__ == "__main__":
     args = parse_args()
     wk_token = args.token
     wk_prefix = "https://api.wanikani.com/v2/"
-    suffixes = ['review_statistics', 'assignments', 'level_progressions', 'reviews', 'subjects']
+    # suffixes = ['review_statistics', 'assignments', 'level_progressions', 'reviews', 'subjects']
+    suffixes = ['subjects']
     sess = requests.session()
 
     for i in tqdm.tqdm(suffixes):
