@@ -72,9 +72,33 @@ plt.show()
 # %%
 # join subjects table on review statistics
 
+subject_df = pd.read_csv('data/subjects.csv')
+
+# don't need date updated from subject table, and hidden is always false so dropping that too
+merged_df = stats_df.merge(subject_df.drop('data_updated_at', axis=1), left_on=['subject_id', 'subject_type'],
+                           right_on=['id', 'subject_type'],
+                           how='inner').drop(['hidden', 'id'], axis=1)
+
+merged_df['subject_type'] = merged_df['subject_type'].astype('category')
+merged_df['weekday'] = merged_df['weekday'].astype('category')
+merged_df['level'] = merged_df['level'].astype('category')
+
 
 # %%
-# does hour of the day have any predictive power for the percentage of correct answers?
+import statsmodels.api as sm
+from patsy import dmatrices
+
+# does type of subject have any predictive power on the percentage?
+
+y, X = dmatrices('percentage_correct ~ subject_type + number_similar + level', data=merged_df, return_type='dataframe')
+lm = sm.OLS(y, X)
+res = lm.fit()
+print(res.summary())
+
+
+
+# %%
+# time series analysis?
 
 import matplotlib.pyplot as plt
 from statsmodels.tsa.ar_model import AutoReg, ar_select_order
