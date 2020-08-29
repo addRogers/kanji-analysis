@@ -64,9 +64,45 @@ sns.clustermap(data=temp)
 plt.show()
 # %%
 
-# Look at count of errors broken down by reading or meaning type, with/without subject typing
-# Also think about streaks
-
-sns.catplot(x='meaning_incorrect', kind='count', data=stats_df)
+sns.catplot(x='meaning_incorrect', kind='count', hue='subject_type', data=stats_df)
 plt.show()
 # %%
+sns.catplot(x='reading_incorrect', kind='count', hue='subject_type', data=stats_df)
+plt.show()
+# %%
+# join subjects table on review statistics
+
+
+# %%
+# does hour of the day have any predictive power for the percentage of correct answers?
+
+import matplotlib.pyplot as plt
+from statsmodels.tsa.ar_model import AutoReg, ar_select_order
+from statsmodels.tsa.api import acf, pacf, graphics
+
+pd.plotting.register_matplotlib_converters()
+# Default figure size
+sns.mpl.rc('figure',figsize=(16, 6))
+# %%
+ts = stats_df[['created_at', 'percentage_correct']].set_index('created_at').dropna()
+temp = ts.asfreq('1H', method='pad')
+# Scale by 100 to get percentages
+fig, ax = plt.subplots()
+ax = ts.plot(ax=ax)
+plt.show()
+# %%
+mod = AutoReg(ts, 3, old_names=False)
+res = mod.fit()
+print(res.summary())
+# %%
+res = mod.fit(cov_type="HC0")
+print(res.summary())
+# %%
+sel = ar_select_order(ts, 13, old_names=False)
+sel.ar_lags
+res = sel.model.fit()
+print(res.summary())
+# %%
+fig = plt.figure(figsize=(16,9))
+fig = res.plot_diagnostics(fig=fig, lags=30)
+plt.show()
