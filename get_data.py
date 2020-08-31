@@ -3,6 +3,7 @@ import pandas as pd
 import argparse
 import time
 import tqdm
+import os
 
 
 class BearerAuth(requests.auth.AuthBase):
@@ -86,6 +87,9 @@ if __name__ == "__main__":
     wk_prefix = "https://api.wanikani.com/v2/"
     suffixes = ['review_statistics', 'assignments', 'level_progressions', 'reviews', 'subjects']
     sess = requests.session()
+
+    if not os.path.exists('data'):
+        os.makedirs('data')
 
     for i in tqdm.tqdm(suffixes):
         collection_df = process_collection(sess, wk_token, wk_prefix + i)
