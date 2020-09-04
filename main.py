@@ -97,14 +97,18 @@ rtemp['total_incorrect'] = rtemp['incorrect_meaning_answers'] + rtemp['incorrect
 rs_df = rtemp.merge(subject_df.drop('data_updated_at', axis=1), left_on='subject_id',
                     right_on='id', how='inner').drop('id', axis=1)
 
+rs_df['hour'] = rs_df['review_dt'].dt.hour.astype('category')
+rs_df['weekday'] = rs_df['review_dt'].dt.weekday.astype('category')
+rs_df['level'] = rs_df['level'].astype('category')
+rs_df['starting_srs_stage'] = rs_df['starting_srs_stage'].astype('category')
+
 
 # %%
 import statsmodels.api as sm
 from patsy import dmatrices
 
-# does type of subject have any predictive power on the percentage?
-
-y, X = dmatrices('percentage_correct ~ subject_type + number_similar + level', data=merged_df, return_type='dataframe')
+y, X = dmatrices('total_incorrect ~  .',
+                 data=rs_df, return_type='dataframe')
 lm = sm.OLS(y, X)
 res = lm.fit()
 print(res.summary())
